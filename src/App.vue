@@ -13,9 +13,9 @@
         </thead>
         <tbody>
           <tr v-for="(dato, index) in datos" :key="index">
-            <td>{{cedula}}</td>
-            <td>{{nombre}}</td>
-            <td>{{telefono}}</td>
+            <td>{{ dato.cedula }}</td>
+            <td>{{ dato.nombre }}</td>
+            <td>{{ dato.telefono }}</td>
             <td>
               <button @click="eliminar(index)" id="eliminar">❌</button>
               <button @click="editar(dato, index)" id="editar" data-bs-toggle="modal"
@@ -29,12 +29,14 @@
 </template>
   
 
+
+
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from "axios"
 const cedula = ref('');
 const nombre = ref('');
-const telefono = ref(0);
+const telefono = ref();
 const precio = ref(0);
 const datos = ref([]);
 let boton = ref("Agregar")
@@ -46,39 +48,45 @@ const alerta4 = ref('');
 const alerta5 = ref('');
 
 
-async function DatosTransporte() {
-  const response = await axios.get(`https://transporte-0ydp.onrender.com/api/cliente/clientebusca`);
+
+
+async function ObtenerDatos() {
+  try {
+    const response = await axios.get(`https://transporte-0ydp.onrender.com/api/cliente/clientebusca`);
     const data = response.data;
+    cedula.value = data.cliente[0].CC_cliente,
+      nombre.value = data.cliente[0].Nombre_cliente,
+      telefono.value = data.cliente[0].Telefono_cliente
 
-    cedula.value =  data.CC_cliente,
-    nombre.value =  data.Nombre_cliente,
-    telefono.value = data.Telefono_cliente
-
-    console.log(data);
-  
+  } catch (error) {
+    console.error('Error al obtener datos:', error);
+  }
 }
-
 
 
 async function DatosTransportePush() {
   const response = await axios.get(`https://transporte-0ydp.onrender.com/api/cliente/clientebusca`);
-    const data = response;
+  const data = response.data;
 
-    datos.value.push({
-    cedula: data.CC_cliente,
-    nombre: data.Nombre_cliente,
-    telefono: data.Telefono_cliente
-    })
-    console.log(data);
-  
+  datos.value.push({
+    cedula: data.cliente[0].CC_cliente,
+    nombre: data.cliente[0].Nombre_cliente,
+    telefono: data.cliente[0].Telefono_cliente,
+  })
+  console.log(data);
+
 }
 
 
+
+
 onMounted(() => {
-  DatosTransporte()
+  DatosTransportePush()
+  ObtenerDatos()
 })
 
-function validar(){
+
+/* function validar(){
   let validacion = true;
   if (!codigo.value) {
       alerta1.value = "Por favor, digite código"
@@ -160,14 +168,14 @@ function validar(){
       validacion = false;
   }
   return validacion
-}
+} */
 
 
 
 function eliminar(index) {
-  data.value.splice(index, 1)
+  datos.value.splice(index, 1)
 }
-function editar(dato, index) {
+/* function editar(dato, index) {
   codigo.value = dato.codigo
   nombre.value = dato.nombre
   cantidad.value = dato.cantidad
@@ -175,7 +183,7 @@ function editar(dato, index) {
   costo.value = dato.costo
   boton.value = "Editar"
   indiceEdicion.value = index; // Almacena el índice del producto en edición
-}
+} */
 
 </script>
 
@@ -187,7 +195,7 @@ function editar(dato, index) {
   align-items: center;
   text-align: center;
   height: 100vh;
-  background-color: #a3ffff;
+  background-color: #3defff;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -198,6 +206,7 @@ function editar(dato, index) {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+  justify-content: center;
 }
 
 .modal-body {
