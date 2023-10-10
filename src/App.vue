@@ -18,12 +18,24 @@
             <td>{{ dato.telefono }}</td>
             <td>
               <button @click="eliminar(index)" id="eliminar">❌</button>
-              <button @click="editar(dato, index)" id="editar" data-bs-toggle="modal"
-                data-bs-target="#exampleModal">📋</button>
+              <button @click="modalAgregar = true" id="agregar">📋</button>
             </td>
           </tr>
         </tbody>
       </table>
+      <q-dialog v-model="modalAgregar" title="Agregar Nuevo Elemento" class="modal-agregar">
+        <!-- Contenido del modal -->
+        <div>
+          <q-input v-model="nuevaCedula" label="Cédula"></q-input>
+          <q-input v-model="nuevoNombre" label="Nombre"></q-input>
+          <q-input v-model="nuevoTelefono" label="Teléfono"></q-input>
+        </div>
+        <q-card-actions>
+          <q-btn color="primary" label="Agregar" @click="agregarNuevoElemento"></q-btn>
+          <q-btn color="secondary" label="Cancelar" @click="modalAgregar = false"></q-btn>
+        </q-card-actions>
+      </q-dialog>
+  
     </div>
   </div>
 </template>
@@ -39,14 +51,7 @@ const nombre = ref('');
 const telefono = ref();
 const precio = ref(0);
 const datos = ref([]);
-let boton = ref("Agregar")
-let indiceEdicion = ref(-1); // Agrega una referencia para almacenar el índice del producto en edición
-const alerta1 = ref('');
-const alerta2 = ref('');
-const alerta3 = ref('');
-const alerta4 = ref('');
-const alerta5 = ref('');
-
+const modalAgregar = ref(false);
 
 
 
@@ -224,6 +229,7 @@ function eliminar(index) {
   background-color: rgb(255, 255, 255);
 }
 
+
 #bt {
   color: rgb(255, 255, 255);
   font-weight: bolder;
@@ -276,4 +282,41 @@ button {
 .error-message {
   color: red;
 }
+
+.Modal {
+  background-color: white;
+  width: 800px;
+  height: 800px;
+}
+
+.modal-agregar {
+  width: 800px; /* Ancho máximo del modal */
+  height: 100%;
+  border-radius: 8px; /* Bordes redondeados */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Sombra */
+  background-color: #fff; /* Fondo blanco */
+}
+
+/* Estilos para el título del modal */
+.modal-agregar .q-dialog__title {
+  font-size: 18px;
+  color: #333;
+  font-weight: bold;
+  padding: 16px;
+}
+
+/* Estilos para el contenido del modal */
+.modal-agregar .q-dialog__content {
+  padding: 16px;
+}
+
+/* Estilos para los botones del modal */
+.modal-agregar .q-card-actions {
+  padding: 16px;
+  justify-content: flex-end;
+}
+
+
+
+
 </style>
