@@ -1,8 +1,15 @@
 <template>
   <div class="body">
+    <div class="butonadd">
+      <q-btn id="agregar" label="Agregar" @click="medium = true" />
+    </div>
     <div class="tabla">
-      <h1>Tabla</h1>
-      <table>
+      <h1 id="datos">Datos Clientes</h1>
+        <div class="q-pa-md">
+          <q-table :rows="rows" :columns="columns" row-key="name" />
+        </div>
+
+      <!-- <table>
         <thead>
           <tr>
             <th>Cédula</th>
@@ -18,24 +25,39 @@
             <td>{{ dato.telefono }}</td>
             <td>
               <button @click="eliminar(index)" id="eliminar">❌</button>
-              <button @click="modalAgregar = true" id="agregar">📋</button>
+              <button id="editar">📋</button>
             </td>
           </tr>
         </tbody>
-      </table>
-      <q-dialog v-model="modalAgregar" title="Agregar Nuevo Elemento" class="modal-agregar">
-        <!-- Contenido del modal -->
-        <div>
-          <q-input v-model="nuevaCedula" label="Cédula"></q-input>
-          <q-input v-model="nuevoNombre" label="Nombre"></q-input>
-          <q-input v-model="nuevoTelefono" label="Teléfono"></q-input>
-        </div>
-        <q-card-actions>
-          <q-btn color="primary" label="Agregar" @click="agregarNuevoElemento"></q-btn>
-          <q-btn color="secondary" label="Cancelar" @click="modalAgregar = false"></q-btn>
-        </q-card-actions>
+      </table> -->
+      <q-dialog v-model="medium">
+        <q-card style="width: 700px; max-width: 80vw;">
+          <q-card-section>
+            <div class="text-h6">Datos</div>
+          </q-card-section>
+
+          <q-card-section class="q-pt-none">
+            <q-p class="text-h5">Cédula</q-p>
+            <q-input type="number" label="Digite cédula" class="q-ml-xs"></q-input>
+          </q-card-section>
+          <q-card-section>
+            <q-p class="text-h5">Nombre</q-p>
+            <q-input label="Digite nombre del cliente" class="q-ml-xs"></q-input>
+          </q-card-section>
+          <q-card-section>
+            <q-p class="text-h5">Télefono</q-p>
+            <q-input type="number" label="Digite número de télfono" class="q-ml-xs"></q-input>
+          </q-card-section>
+
+
+
+          <q-card-actions align="right" class="bg-white text-teal">
+            <q-btn flat label="OK" v-close-popup />
+          </q-card-actions>
+        </q-card>
       </q-dialog>
-  
+
+
     </div>
   </div>
 </template>
@@ -49,9 +71,17 @@ import axios from "axios"
 const cedula = ref('');
 const nombre = ref('');
 const telefono = ref();
-const precio = ref(0);
-const datos = ref([]);
-const modalAgregar = ref(false);
+const datos = ref([])
+const medium = ref(false);
+const rows = ref([])
+
+const columns = [
+
+  { name: 'Cedula', align: 'center', label: 'Cedula', field: 'Cedula', sortable: true },
+  { name: 'Nombre', label: 'Nombre', field: 'fat', sortable: true },
+  { name: 'Telefono', label: 'Telefono', field: 'carbs' },
+  { name: 'Estado', label: 'Estado', field: 'Estado' },
+]
 
 
 
@@ -59,7 +89,7 @@ async function ObtenerDatos() {
   try {
     const response = await axios.get(`https://transporte-0ydp.onrender.com/api/cliente/clientebusca`);
     const data = response.data;
-    cedula.value = data.cliente[0].CC_cliente,
+      cedula.value = data.cliente[0].CC_cliente,
       nombre.value = data.cliente[0].Nombre_cliente,
       telefono.value = data.cliente[0].Telefono_cliente
 
@@ -78,6 +108,8 @@ async function DatosTransportePush() {
     nombre: data.cliente[0].Nombre_cliente,
     telefono: data.cliente[0].Telefono_cliente,
   })
+
+  rows.value = datos
   console.log(data);
 
 }
@@ -212,14 +244,11 @@ function eliminar(index) {
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
   justify-content: center;
+  gap: 80px;
 }
 
-.modal-body {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  background-color: rgb(80, 80, 80);
-  color: white;
+button {
+  margin-right: 5px;
 }
 
 .tabla {
@@ -254,22 +283,7 @@ th {
   background-color: rgb(244, 240, 14);
 }
 
-button {
-  margin: 5px;
-}
 
-#BT {
-  background-color: rgb(14, 182, 45);
-  border-radius: 20px;
-  font-size: 25px;
-  font-weight: bolder;
-  padding: 10px;
-}
-
-.h {
-  background-color: rgb(80, 78, 78);
-  border: 3px solid black;
-}
 
 #eliminar {
   background-color: orange;
@@ -283,40 +297,26 @@ button {
   color: red;
 }
 
-.Modal {
-  background-color: white;
-  width: 800px;
-  height: 800px;
-}
-
-.modal-agregar {
-  width: 800px; /* Ancho máximo del modal */
-  height: 100%;
-  border-radius: 8px; /* Bordes redondeados */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Sombra */
-  background-color: #fff; /* Fondo blanco */
-}
-
-/* Estilos para el título del modal */
-.modal-agregar .q-dialog__title {
-  font-size: 18px;
-  color: #333;
-  font-weight: bold;
-  padding: 16px;
-}
-
-/* Estilos para el contenido del modal */
-.modal-agregar .q-dialog__content {
-  padding: 16px;
-}
-
-/* Estilos para los botones del modal */
-.modal-agregar .q-card-actions {
-  padding: 16px;
+.butonadd {
+  display: flex;
   justify-content: flex-end;
+  width: 100%;
+  margin-right: 30%;
+}
+
+#agregar {
+  width: 200px;
+  height: 60px;
+  border-radius: 10px;
+  font-size: 25px;
+  font-weight: bolder;
+  background-color: white;
+  color: rgb(0, 0, 0);
 }
 
 
-
-
+.bg-primary {
+  width: 100%;
+  height: 100%;
+}
 </style>
