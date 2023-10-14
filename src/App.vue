@@ -6,30 +6,8 @@
     <div class="tabla">
       <h1 id="datos">Datos Clientes</h1>
         <div class="q-pa-md">
-          <q-table :rows="rows" :columns="columns" row-key="name" />
+          <q-table :rows="rows" :columns="columns" row-key="name" :pagination="false" class="q-w-sm"/>
         </div>
-
-      <!-- <table>
-        <thead>
-          <tr>
-            <th>Cédula</th>
-            <th>Cliente</th>
-            <th>Teléfono</th>
-            <th>Opciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(dato, index) in datos" :key="index">
-            <td>{{ dato.cedula }}</td>
-            <td>{{ dato.nombre }}</td>
-            <td>{{ dato.telefono }}</td>
-            <td>
-              <button @click="eliminar(index)" id="eliminar">❌</button>
-              <button id="editar">📋</button>
-            </td>
-          </tr>
-        </tbody>
-      </table> -->
       <q-dialog v-model="medium">
         <q-card style="width: 700px; max-width: 80vw;">
           <q-card-section>
@@ -38,21 +16,19 @@
 
           <q-card-section class="q-pt-none">
             <q-p class="text-h5">Cédula</q-p>
-            <q-input type="number" label="Digite cédula" class="q-ml-xs"></q-input>
+            <q-input  label="Digite cédula" class="q-ml-xs" v-model="cedulaNueva"></q-input>
           </q-card-section>
           <q-card-section>
             <q-p class="text-h5">Nombre</q-p>
-            <q-input label="Digite nombre del cliente" class="q-ml-xs"></q-input>
+            <q-input label="Digite nombre del cliente" class="q-ml-xs" v-model="nombreNuevo"></q-input>
           </q-card-section>
           <q-card-section>
             <q-p class="text-h5">Télefono</q-p>
-            <q-input type="number" label="Digite número de télfono" class="q-ml-xs"></q-input>
+            <q-input  label="Digite número de télfono" class="q-ml-xs" v-model="telefonoNuevo"></q-input>
           </q-card-section>
 
-
-
           <q-card-actions align="right" class="bg-white text-teal">
-            <q-btn flat label="OK" v-close-popup />
+            <q-btn flat label="OK" v-close-popup @click="AgregarCliente()"/>
           </q-card-actions>
         </q-card>
       </q-dialog>
@@ -68,20 +44,24 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from "axios"
-const cedula = ref('');
+const cedula = ref();
 const nombre = ref('');
 const telefono = ref();
+const estado = ref()
+const cedulaNueva = ref()
+const nombreNuevo = ref('')
+const telefonoNuevo = ref()
 const datos = ref([])
 const medium = ref(false);
 const rows = ref([])
 
 const columns = [
-
-  { name: 'Cedula', align: 'center', label: 'Cedula', field: 'Cedula', sortable: true },
-  { name: 'Nombre', label: 'Nombre', field: 'fat', sortable: true },
-  { name: 'Telefono', label: 'Telefono', field: 'carbs' },
-  { name: 'Estado', label: 'Estado', field: 'Estado' },
+  { name: 'cedula', align: 'center', label: 'Cedula', field: 'cedula', sortable: true },
+  { name: 'nombre', label: 'Nombre', field: 'nombre', sortable: true },
+  { name: 'telefono', label: 'Telefono', field: 'telefono' },
+  { name: 'estado', label: 'Estado', field: 'estado' },
 ]
+
 
 
 
@@ -92,7 +72,7 @@ async function ObtenerDatos() {
       cedula.value = data.cliente[0].CC_cliente,
       nombre.value = data.cliente[0].Nombre_cliente,
       telefono.value = data.cliente[0].Telefono_cliente
-
+      estado.value = data.cliente[0].estado
   } catch (error) {
     console.error('Error al obtener datos:', error);
   }
@@ -100,19 +80,72 @@ async function ObtenerDatos() {
 
 
 async function DatosTransportePush() {
-  const response = await axios.get(`https://transporte-0ydp.onrender.com/api/cliente/clientebusca`);
-  const data = response.data;
+  try {
+    const response = await axios.get(`clientebusca`);
+    const data = response.data;
 
-  datos.value.push({
-    cedula: data.cliente[0].CC_cliente,
-    nombre: data.cliente[0].Nombre_cliente,
-    telefono: data.cliente[0].Telefono_cliente,
-  })
-
-  rows.value = datos
-  console.log(data);
-
+    if (data.cliente.length > 0) {
+      // Limpia los datos existentes antes de agregar nuevos datos
+      datos.value = [];
+      
+      for (const cliente of data.cliente) {
+        datos.value.push({
+          cedula: cliente.CC_cliente,
+          nombre: cliente.Nombre_cliente,
+          telefono: cliente.Telefono_cliente,
+          estado: cliente.estado
+        });
+      }
+      
+      rows.value = datos.value;
+    }
+  } catch (error) {
+    console.error('Error al obtener datos:', error);
+  }
 }
+
+
+
+async function AgregarCliente() {
+  const data = {
+    CC_cliente: cedulaNueva.value,
+    Nombre_cliente: nombreNuevo.value,
+    Telefono_cliente: telefonoNuevo.value,
+    estado: 1,
+  }
+
+  try {
+    const response = await axios.post(`clientecrear`, data);
+
+    if (response.status === 200) {
+      // Agrega el nuevo cliente a la lista de datos
+      datos.value.push(data);
+      rows.value = datos.value;
+
+      // Limpia los campos de entrada
+      cedulaNueva.value = '';
+      nombreNuevo.value = '';
+      telefonoNuevo.value = '';
+
+      // Cierra el diálogo
+      medium.value = false;
+    } else {
+      console.log('Error en la solicitud HTTP:', response.status, response.statusText);
+      // Puedes mostrar un mensaje de error o realizar otras acciones en caso de error.
+    }
+  } catch (error) {
+    console.error('Error al agregar cliente:', error);
+
+    if (error.response) {
+      console.log('Respuesta de error:', error.response.status, error.response.data);
+    }
+  }
+}
+
+
+
+
+
 
 
 
