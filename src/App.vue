@@ -56,9 +56,9 @@ const medium = ref(false);
 const rows = ref([])
 
 const columns = [
-  { name: 'cedula', align: 'center', label: 'Cedula', field: 'cedula', sortable: true },
-  { name: 'nombre', label: 'Nombre', field: 'nombre', sortable: true },
-  { name: 'telefono', label: 'Telefono', field: 'telefono' },
+  { name: 'cedula', align: 'center', label: 'Cedula', field: 'CC_cliente', sortable: true },
+  { name: 'nombre', label: 'Nombre', field: 'Nombre_cliente', sortable: true },
+  { name: 'telefono', label: 'Telefono', field: 'Telefono_cliente' },
   { name: 'estado', label: 'Estado', field: 'estado' },
 ]
 
@@ -67,7 +67,7 @@ const columns = [
 
 async function ObtenerDatos() {
   try {
-    const response = await axios.get(`https://transporte-0ydp.onrender.com/api/cliente/clientebusca`);
+    const response = await axios.get(`clientebusca`);
     const data = response.data;
       cedula.value = data.cliente[0].CC_cliente,
       nombre.value = data.cliente[0].Nombre_cliente,
@@ -85,14 +85,12 @@ async function DatosTransportePush() {
     const data = response.data;
 
     if (data.cliente.length > 0) {
-      // Limpia los datos existentes antes de agregar nuevos datos
-      datos.value = [];
       
       for (const cliente of data.cliente) {
         datos.value.push({
-          cedula: cliente.CC_cliente,
-          nombre: cliente.Nombre_cliente,
-          telefono: cliente.Telefono_cliente,
+          CC_cliente: cliente.CC_cliente,
+          Nombre_cliente: cliente.Nombre_cliente,
+          Telefono_cliente: cliente.Telefono_cliente,
           estado: cliente.estado
         });
       }
@@ -115,19 +113,15 @@ async function AgregarCliente() {
   }
 
   try {
-    const response = await axios.post(`clientecrear`, data);
+    const response = await axios.post("clientecrear", data);
 
     if (response.status === 200) {
-      // Agrega el nuevo cliente a la lista de datos
       datos.value.push(data);
       rows.value = datos.value;
 
-      // Limpia los campos de entrada
       cedulaNueva.value = '';
       nombreNuevo.value = '';
       telefonoNuevo.value = '';
-
-      // Cierra el diálogo
       medium.value = false;
     } else {
       console.log('Error en la solicitud HTTP:', response.status, response.statusText);
@@ -156,104 +150,11 @@ onMounted(() => {
 })
 
 
-/* function validar(){
-  let validacion = true;
-  if (!codigo.value) {
-      alerta1.value = "Por favor, digite código"
-      al.style.color = "Orange"
-      al.style.fontSize = "30px"
-      al.style.fontWeight = "Bolder"
-      setTimeout(function () {
-        alerta1.value = "";
-        alerta1.style = "";
-      }, 2500)
-      validacion = false;
-    ;
-   
-  } else if (!nombre.value) {
-      alerta2.value = "Por favor, digite nombre"
-      ale.style.color = "Orange"
-      ale.style.fontSize = "30px"
-      ale.style.fontWeight = "Bolder"
-      setTimeout(function () {
-        alerta2.value = "";
-        alerta2.style = "";
-      }, 2500)
-      validacion = false;
-    
-  } else if (!cantidad.value) {
-      alerta3.value = "Por favor, digite una cantidad mayor a 0"
-      aler.style.color = "Orange"
-      aler.style.fontSize = "30px"
-      aler.style.fontWeight = "Bolder"
-      setTimeout(function () {
-        alerta3.value = "";
-        alerta3.style = "";
-      }, 2500)
-      validacion = false;
-    
-  } else if (!precio.value) {
-
-      alerta4.value = "Por favor, digite un precio mayor a 0"
-      alertt.style.color = "Orange"
-      alertt.style.fontSize = "30px"
-      alertt.style.fontWeight = "Bolder"
-      setTimeout(function () {
-        alerta4.value = "";
-        alerta4.style = "";
-      }, 2500)
-      validacion = false;
-  } else if (!costo.value) {
-
-      alerta5.value = "Por favor, digite un costo mayor a 0"
-      alerta.style.color = "Orange"
-      alerta.style.fontSize = "30px"
-      alerta.style.fontWeight = "Bolder"
-      setTimeout(function () {
-        alerta5.value = "";
-        alerta5.style = "";
-      }, 2500)
-      validacion = false;
-    
-  } else if (costo.value>precio.value) {
-      alerta5.value = "El costo no puede ser mayor a el precio del producto"
-      alerta.style.color = "Orange"
-      alerta.style.fontSize = "30px"
-      alerta.style.fontWeight = "Bolder"
-      setTimeout(function () {
-        alerta5.value = "";
-        alerta5.style = "";
-      }, 2500)
-      validacion = false;
-
-  }else{
-      alerta5.value = "Datos guardados exitosamente, por favor presione click en 'Cerrar'"
-      alerta.style.color = "Green"
-      alerta.style.fontSize = "30px"
-      alerta.style.fontWeight = "Bolder"
-      setTimeout(function () {
-        alerta5.value = "";
-        alerta5.style = "";
-      }, 3500)
-      validacion = false;
-  }
-  return validacion
-} */
 
 
 
-function eliminar(index) {
-  datos.value.splice(index, 1)
-}
-/* function editar(dato, index) {
-  codigo.value = dato.codigo
-  nombre.value = dato.nombre
-  cantidad.value = dato.cantidad
-  precio.value = dato.precio
-  costo.value = dato.costo
-  boton.value = "Editar"
-  indiceEdicion.value = index; // Almacena el índice del producto en edición
-} */
+
+
 
 </script>
 
