@@ -8,7 +8,7 @@ import 'quasar/src/css/index.sass'
 import axios from "axios";
 
 
-axios.defaults.baseURL="https://transporte-0ydp.onrender.com/api/cliente"
+axios.defaults.baseURL="http://localhost:4527/api/cliente"
 
 const app = createApp(App)
 

@@ -48,6 +48,7 @@ const cedula = ref();
 const nombre = ref('');
 const telefono = ref();
 const estado = ref()
+const fechacreacion = ref()
 const cedulaNueva = ref()
 const nombreNuevo = ref('')
 const telefonoNuevo = ref()
@@ -60,6 +61,7 @@ const columns = [
   { name: 'nombre', label: 'Nombre', field: 'Nombre_cliente', sortable: true },
   { name: 'telefono', label: 'Telefono', field: 'Telefono_cliente' },
   { name: 'estado', label: 'Estado', field: 'estado' },
+  { name: 'createdAt', label: 'Fecha', field: 'createdAt' },
 ]
 
 
@@ -73,6 +75,7 @@ async function ObtenerDatos() {
       nombre.value = data.cliente[0].Nombre_cliente,
       telefono.value = data.cliente[0].Telefono_cliente
       estado.value = data.cliente[0].estado
+      fechacreacion.value = data.cliente[0].createdAt
   } catch (error) {
     console.error('Error al obtener datos:', error);
   }
@@ -91,10 +94,10 @@ async function DatosTransportePush() {
           CC_cliente: cliente.CC_cliente,
           Nombre_cliente: cliente.Nombre_cliente,
           Telefono_cliente: cliente.Telefono_cliente,
-          estado: cliente.estado
+          estado: cliente.estado,
+          createdAt: cliente.createdAt
         });
       }
-      
       rows.value = datos.value;
     }
   } catch (error) {
@@ -105,24 +108,25 @@ async function DatosTransportePush() {
 
 
 async function AgregarCliente() {
+  const fechaActual = new Date();
   const data = {
     CC_cliente: cedulaNueva.value,
     Nombre_cliente: nombreNuevo.value,
     Telefono_cliente: telefonoNuevo.value,
     estado: 1,
+    createdAt: fechaActual.toISOString()
   }
 
   try {
     const response = await axios.post("clientecrear", data);
-
+  
     if (response.status === 200) {
       datos.value.push(data);
-      rows.value = datos.value;
-
       cedulaNueva.value = '';
       nombreNuevo.value = '';
       telefonoNuevo.value = '';
       medium.value = false;
+      DatosTransportePush()
     } else {
       console.log('Error en la solicitud HTTP:', response.status, response.statusText);
       // Puedes mostrar un mensaje de error o realizar otras acciones en caso de error.
